@@ -2,10 +2,15 @@ package org.softauto.avro.tools;
 
 import org.apache.avro.Compiler;
 import org.apache.avro.Protocol;
+import org.apache.maven.plugin.MojoExecutionException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,12 +23,12 @@ public class CompilerTool implements Tool {
     public int run(InputStream in, PrintStream out, PrintStream err, List<Object> arguments) throws Exception {
 
         try {
-            if (arguments.size() < 6) {
+            if (arguments.size() < 5) {
                 System.err.println(
-                        "Usage: -sourceDirectory <schema source directory>  -src <src>  -velocityResources <fully qualified velocity resource path>   -template <template> -name <name>  outputdir");
+                        "Usage: -sourceDirectory <schema source directory>  -src <src>  -classpath <fully qualified velocity resource path jar >   -template <template> -name <name>  outputdir");
                 System.err.println(" sourceDirectory   - schema source directory ");
                 System.err.println(" src               - fully qualified schema url without the avpr extension ");
-                System.err.println(" velocityResources - fully qualified velocity resource path of absolute or jar ");
+                System.err.println(" classpath         - fully qualified velocity resource path of absolute jar ");
                 System.err.println(" template          - vm template name to use");
                 System.err.println(" name              - name of the output file");
                 System.err.println(" outputdir         - directory to write generated java");
@@ -34,7 +39,7 @@ public class CompilerTool implements Tool {
             Optional<String> template = Optional.empty();
             Optional<String> name = Optional.empty();
             Optional<String> sourceDirectory = Optional.empty();
-            Optional<String> velocityResources = Optional.empty();
+            Optional<String> classpath = Optional.empty();
             int arg = 0;
             List<Object> args = new ArrayList<>(arguments);
 
@@ -52,9 +57,9 @@ public class CompilerTool implements Tool {
                 args.remove(arg - 1);
             }
 
-            if (args.contains("-velocityResources")) {
-                arg = args.indexOf("-velocityResources") + 1;
-                velocityResources = Optional.of(args.get(arg).toString());
+            if (args.contains("-classpath")) {
+                arg = args.indexOf("-classpath") + 1;
+                classpath = Optional.of(args.get(arg).toString());
                 args.remove(arg);
                 args.remove(arg - 1);
             }
@@ -74,7 +79,7 @@ public class CompilerTool implements Tool {
             }
 
             File output = new File(args.get(args.size() - 1).toString());
-            doCompile(src.get(),sourceDirectory.get(),output,velocityResources.get(),template.get(),name.get());
+            doCompile(src.get(),sourceDirectory.get(),output,classpath.get(),template.get(),name.get());
 
             logger.info("successfully compile schema ");
         }catch (Exception e){
@@ -84,12 +89,33 @@ public class CompilerTool implements Tool {
         return 0;
     }
 
+    public static void addURL(URL u, URLClassLoader sysloader)  throws MojoExecutionException {
+        Class[] parameters = new Class[]{URL.class};
+        Class sysclass = URLClassLoader.class;
+        try {
+            Method method = sysclass.getDeclaredMethod("addURL",parameters);
+            method.setAccessible(true);
+            method.invoke(sysloader,new Object[]{ u });
+        } catch (Throwable t) {
+            throw new MojoExecutionException("add url fail "+ u ,t);
+        }
+    }
 
-    protected void doCompile(String filename, String sourceDirectory, File outputDirectory,String velocityResources,String template,String outputName) throws IOException {
+    public static void addJarToClasspath(String f) {
+        try {
+            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            addURL(new File(f).toURL(),classLoader);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+    }
+
+    protected void doCompile(String filename, String sourceDirectory, File outputDirectory,String classpath,String template,String outputName) throws IOException {
         File src = new File(sourceDirectory, filename);
         Protocol protocol = Protocol.parse(src);
         Compiler compiler = new Compiler(protocol);
-        compiler.setVelocityResources(velocityResources);
+        addJarToClasspath(classpath);
         compiler.setTemplateDir("");
         compiler.compileProtocolToDestination(src, outputDirectory, template, outputName);
     }

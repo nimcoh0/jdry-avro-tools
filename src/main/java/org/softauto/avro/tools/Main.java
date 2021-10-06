@@ -1,6 +1,5 @@
 package org.softauto.avro.tools;
 
-//import org.apache.avro.tool.*;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

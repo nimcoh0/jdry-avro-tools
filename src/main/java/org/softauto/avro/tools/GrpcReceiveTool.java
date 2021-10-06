@@ -26,7 +26,7 @@ public class GrpcReceiveTool implements Tool {
     public int run(InputStream in, PrintStream out, PrintStream err, List<Object> arguments) throws Exception {
         try {
 
-            if (arguments.size() != 6) {
+            if (arguments.size() < 2) {
                 System.err.println(
                         "Usage: -port <port>  -impl <impl class>  ");
                 System.err.println(" impl      - impl class file ");
@@ -95,7 +95,7 @@ public class GrpcReceiveTool implements Tool {
 
     @Override
     public String getShortDescription() {
-        return "Opens an GRPC Server and listens for one message.";
+        return "load GRPC Server and listens for one message.";
     }
 
 

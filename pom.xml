@@ -7,7 +7,7 @@
         <version>beta-1.0</version>
 
     <modelVersion>4.0.0</modelVersion>
-
+    <packaging>jar</packaging>
     <artifactId>jdry-avro-tools</artifactId>
 
     <dependencies>
@@ -32,11 +32,7 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.5</version>
         </dependency>
-        <!--dependency>
-            <groupId>org.apache.avro</groupId>
-            <artifactId>avro-tools</artifactId>
-            <version>${avro-tools}</version>
-        </dependency-->
+
         <dependency>
             <groupId>org.softauto</groupId>
             <artifactId>jdry-serializer</artifactId>
@@ -59,40 +55,17 @@
             <version>3.5</version>
             <scope>compile</scope>
         </dependency>
-        <!--dependency>
-            <groupId>org.softauto</groupId>
-            <artifactId>jdry-core</artifactId>
-            <version>beta-1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.softauto</groupId>
-            <artifactId>jdry-grpc</artifactId>
-            <version>beta-1.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.softauto</groupId>
-            <artifactId>jdry-avro</artifactId>
-            <version>beta-1.0</version>
-            <scope>compile</scope>
-        </dependency-->
+
         <dependency>
             <groupId>org.apache.avro</groupId>
             <artifactId>avro-tools</artifactId>
             <version>1.10.2</version>
         </dependency>
-        <!--dependency>
-            <groupId>org.softauto</groupId>
-            <artifactId>package_processor</artifactId>
-            <version>1.0</version>
 
-        </dependency-->
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
+          <plugins>
                 <plugin>
                     <artifactId>maven-compiler-plugin</artifactId>
 
@@ -102,12 +75,49 @@
                         <encoding>UTF-8</encoding>
                         <generatedTestSourcesDirectory>target/generated-test-sources/test-annotations</generatedTestSourcesDirectory>
                         <generatedSourcesDirectory>target/generated-sources</generatedSourcesDirectory>
-
+                        <compilerArgs>
+                            <arg>-XDignore.symbol.file</arg>
+                        </compilerArgs>
+                        <fork>true</fork>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>jar-with-dependencies</descriptorRef>
+                        </descriptorRefs>
+                        <archive>
+                            <index>true</index>
+                            <manifestFile>
+                                src/main/resources/META-INF/MANIFEST.MF
+                            </manifestFile>
+                            <manifest>
+                                <addClasspath>true</addClasspath>
+                            </manifest>
+                            <manifestEntries>
+                                <Premain-Class>org.softauto.avro.tools.Main</Premain-Class>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>make-assembly</id>
+
+                            <phase>package</phase>
+
+                            <goals>
+                                <goal>single</goal>
+
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
 
             </plugins>
-        </pluginManagement>
+
     </build>
 
 </project>

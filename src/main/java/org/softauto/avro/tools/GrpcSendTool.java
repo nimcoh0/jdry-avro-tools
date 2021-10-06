@@ -20,7 +20,7 @@ public class GrpcSendTool implements Tool {
     public int run(InputStream in, PrintStream out, PrintStream err, List<Object> arguments) throws Exception {
         try {
 
-            if (arguments.size() >= 10) {
+            if (arguments.size() < 6) {
                 System.err.println(
                         "Usage: -host <host> -port <port>  (-data d | -file f)");
                 System.err.println(" host           - receiver host ");

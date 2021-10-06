@@ -37,7 +37,7 @@ public class Utils {
         Class c = null;
         try{
             String localPath = path.substring(0,path.lastIndexOf("classes")+8);
-            String clazz = path.substring(path.lastIndexOf("classes") + 8, path.length()).replace("/", ".")+"."+clazzName;
+            String clazz = path.substring(path.lastIndexOf("classes") + 8, path.length()).replace("\\",".").replace("/", ".")+"."+clazzName;
             URLClassLoader sysloader = (URLClassLoader)ClassLoader.getSystemClassLoader();
             addURL(new File(localPath).toURL(),sysloader);
             c = (Class) sysloader.loadClass(clazz );

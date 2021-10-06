@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Permissions: all-permission
+Can-Redefine-Classes: true
+Can-Retransform-Classes: true
+Can-Set-Native-Method-Prefix: true
+Main-Class: org.softauto.avro.tools.Main
+
+
+
+
+
+
